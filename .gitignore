@@ -1,0 +1,24 @@
+# AEGIS .gitignore
+
+# Baseline results (machine-specific, not tracked)
+results/*.json
+
+# Temp files
+*.tmp
+*.bak
+New Text Document*.txt
+
+# PowerShell module artifacts
+*.psm1.bak
+
+# OS junk
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Editor artifacts
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
