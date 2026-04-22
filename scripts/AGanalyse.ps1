@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    AGanalyse — AEGIS Baseline Analyzer. Weighted, rule-based diagnostics.
+    AGanalyse - AEGIS Baseline Analyzer. Weighted, rule-based diagnostics.
 
 .DESCRIPTION
     Reads a JSON baseline and applies diagnostic rules with severity weighting.
@@ -30,7 +30,7 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-# ── Auto-detect latest baseline if no path given ─────────────────────────────
+# -- Auto-detect latest baseline if no path given -----------------------------
 if (-not $JsonPath) {
     $resultsDir = Join-Path $PSScriptRoot "..\results"
     if (Test-Path $resultsDir) {
@@ -84,7 +84,7 @@ Write-Host "CPU      : $($baseline.System.CPU)"
 Write-Host "GPU      : $($baseline.System.GPU)"
 Write-Host ""
 
-# ── Findings Collector (with weights) ────────────────────────────────────────
+# -- Findings Collector (with weights) ----------------------------------------
 # Each finding: [PSCustomObject]@{ Severity; Weight; Message }
 $findings = @()
 $totalScore = 0
@@ -98,34 +98,34 @@ function Add-Finding($severity, $weight, $message) {
     $script:totalScore += $weight
 }
 
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 # RULE ENGINE
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 
-# ── Power Rules ──────────────────────────────────────────────────────────────
+# -- Power Rules --------------------------------------------------------------
 if ($null -ne $baseline.Power.CpuMinStateAC -and $baseline.Power.CpuMinStateAC -ge 0) {
     $minAC = $baseline.Power.CpuMinStateAC
     if ($minAC -ge 100) {
-        Add-Finding "CRITICAL" 40 "CPU minimum state (AC) locked at $minAC% — processor cannot idle. Causes constant heat, fan noise, and wasted power."
+        Add-Finding "CRITICAL" 40 "CPU minimum state (AC) locked at $minAC% - processor cannot idle. Causes constant heat, fan noise, and wasted power."
     } elseif ($minAC -gt 10) {
-        Add-Finding "WARNING" 15 "CPU minimum state (AC) is $minAC% — above configured threshold (<=10%). Consider lowering for efficiency."
+        Add-Finding "WARNING" 15 "CPU minimum state (AC) is $minAC% - above configured threshold (<=10%). Consider lowering for efficiency."
     } else {
-        Add-Finding "INFO" 0 "CPU minimum state (AC) at $minAC% — within configured threshold."
+        Add-Finding "INFO" 0 "CPU minimum state (AC) at $minAC% - within configured threshold."
     }
 }
 
 if ($null -ne $baseline.Power.CpuMinStateDC -and $baseline.Power.CpuMinStateDC -ge 0) {
     $minDC = $baseline.Power.CpuMinStateDC
     if ($minDC -ge 100) {
-        Add-Finding "CRITICAL" 40 "CPU minimum state (DC/Battery) locked at $minDC% — processor runs full speed on battery. Severe battery drain."
+        Add-Finding "CRITICAL" 40 "CPU minimum state (DC/Battery) locked at $minDC% - processor runs full speed on battery. Severe battery drain."
     } elseif ($minDC -gt 10) {
-        Add-Finding "WARNING" 15 "CPU minimum state (DC/Battery) is $minDC% — above configured threshold for battery mode."
+        Add-Finding "WARNING" 15 "CPU minimum state (DC/Battery) is $minDC% - above configured threshold for battery mode."
     } else {
-        Add-Finding "INFO" 0 "CPU minimum state (DC/Battery) at $minDC% — within configured threshold."
+        Add-Finding "INFO" 0 "CPU minimum state (DC/Battery) at $minDC% - within configured threshold."
     }
 }
 
-# ── Memory Rules ─────────────────────────────────────────────────────────────
+# -- Memory Rules -------------------------------------------------------------
 if ($null -ne $baseline.Memory.Modules) {
     if ($baseline.Memory.Modules -eq 1) {
         Add-Finding "WARNING" 50 "Single-channel memory detected ($($baseline.Memory.TotalGB) GB, 1 module). Memory bandwidth is halved compared to dual-channel configuration."
@@ -136,15 +136,15 @@ if ($null -ne $baseline.Memory.Modules) {
 
 if ($null -ne $baseline.Memory.TotalGB) {
     if ($baseline.Memory.TotalGB -lt 4) {
-        Add-Finding "CRITICAL" 60 "Total RAM is $($baseline.Memory.TotalGB) GB — severely constrained for modern Windows workloads."
+        Add-Finding "CRITICAL" 60 "Total RAM is $($baseline.Memory.TotalGB) GB - severely constrained for modern Windows workloads."
     } elseif ($baseline.Memory.TotalGB -lt 8) {
-        Add-Finding "WARNING" 20 "Total RAM is $($baseline.Memory.TotalGB) GB — may limit multitasking under load."
+        Add-Finding "WARNING" 20 "Total RAM is $($baseline.Memory.TotalGB) GB - may limit multitasking under load."
     } else {
         Add-Finding "INFO" 0 "Total RAM: $($baseline.Memory.TotalGB) GB."
     }
 }
 
-# ── Wake Lock Rules ──────────────────────────────────────────────────────────
+# -- Wake Lock Rules ----------------------------------------------------------
 if ($null -ne $baseline.WakeLocks -and $baseline.WakeLocks.Count -gt 0) {
     $lockCount = $baseline.WakeLocks.Count
     # Weight scales with count: 1 lock = 40, 2 = 45, 3+ = 50
@@ -154,15 +154,15 @@ if ($null -ne $baseline.WakeLocks -and $baseline.WakeLocks.Count -gt 0) {
         Add-Finding "WARNING" 0 "  [$($lock.Category)] $($lock.Blocker)"
     }
 } else {
-    Add-Finding "INFO" 0 "No active wake locks — sleep/hibernate should function normally."
+    Add-Finding "INFO" 0 "No active wake locks - sleep/hibernate should function normally."
 }
 
-# ── Storage Rules ────────────────────────────────────────────────────────────
+# -- Storage Rules ------------------------------------------------------------
 if ($null -ne $baseline.Storage -and $baseline.Storage.Count -gt 0) {
     foreach ($disk in $baseline.Storage) {
         # Unhealthy storage = critical
         if ($disk.Health -and $disk.Health -ne "Healthy" -and $disk.Health -ne "Unknown") {
-            Add-Finding "CRITICAL" 70 "Storage '$($disk.Name)' reports health: '$($disk.Health)' — potential data loss risk. Back up immediately."
+            Add-Finding "CRITICAL" 70 "Storage '$($disk.Name)' reports health: '$($disk.Health)' - potential data loss risk. Back up immediately."
         }
 
         # HDD as primary storage
@@ -172,17 +172,17 @@ if ($null -ne $baseline.Storage -and $baseline.Storage.Count -gt 0) {
 
         # External drive info
         if ($disk.Type -eq "External") {
-            Add-Finding "INFO" 0 "External storage: '$($disk.Name)' ($($disk.SizeGB) GB) — Health: $($disk.Health)."
+            Add-Finding "INFO" 0 "External storage: '$($disk.Name)' ($($disk.SizeGB) GB) - Health: $($disk.Health)."
         }
 
         # Healthy SSD
         if ($disk.Type -eq "SSD" -and $disk.Health -eq "Healthy") {
-            Add-Finding "INFO" 0 "SSD: '$($disk.Name)' ($($disk.SizeGB) GB) — Healthy."
+            Add-Finding "INFO" 0 "SSD: '$($disk.Name)' ($($disk.SizeGB) GB) - Healthy."
         }
     }
 }
 
-# ── Process Rules ────────────────────────────────────────────────────────────
+# -- Process Rules ------------------------------------------------------------
 # Note: CPU field = cumulative CPU seconds since process start (not real-time %).
 # We flag only genuinely anomalous RAM usage. Everything else is informational.
 if ($null -ne $baseline.TopProcesses -and $baseline.TopProcesses.Count -gt 0) {
@@ -199,9 +199,9 @@ if ($null -ne $baseline.TopProcesses -and $baseline.TopProcesses.Count -gt 0) {
     Add-Finding "INFO" 0 "Top processes by cumulative CPU time: $procList"
 }
 
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 # OUTPUT
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 
 $sevColors = @{ CRITICAL = "Red"; WARNING = "Yellow"; INFO = "Gray" }
 $sevOrder  = @("CRITICAL", "WARNING", "INFO")
@@ -218,7 +218,7 @@ foreach ($sev in $sevOrder) {
     }
 }
 
-# ── Severity Summary ─────────────────────────────────────────────────────────
+# -- Severity Summary ---------------------------------------------------------
 $critCount = @($findings | Where-Object { $_.Severity -eq "CRITICAL" }).Count
 $warnCount = @($findings | Where-Object { $_.Severity -eq "WARNING" }).Count
 $infoCount = @($findings | Where-Object { $_.Severity -eq "INFO" }).Count
@@ -230,13 +230,13 @@ Write-Host "  INFO     : $infoCount" -ForegroundColor Gray
 Write-Host ""
 Write-Host "  Impact Score : $totalScore points" -ForegroundColor White
 
-# ── Health Grade ─────────────────────────────────────────────────────────────
+# -- Health Grade -------------------------------------------------------------
 Write-Host ""
 if ($totalScore -ge 70) {
-    Write-Host "[!!!] CRITICAL STATE ($totalScore pts) — Immediate intervention required." -ForegroundColor Red
+    Write-Host "[!!!] CRITICAL STATE ($totalScore pts) - Immediate intervention required." -ForegroundColor Red
 } elseif ($totalScore -ge 30) {
-    Write-Host "[!!] NEEDS ATTENTION ($totalScore pts) — Review flagged issues." -ForegroundColor Yellow
+    Write-Host "[!!] NEEDS ATTENTION ($totalScore pts) - Review flagged issues." -ForegroundColor Yellow
 } else {
-    Write-Host "[OK] HEALTHY ($totalScore pts) — System within acceptable parameters." -ForegroundColor Green
+    Write-Host "[OK] HEALTHY ($totalScore pts) - System within acceptable parameters." -ForegroundColor Green
 }
 Write-Host ""
