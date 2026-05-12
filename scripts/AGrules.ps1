@@ -5,7 +5,15 @@
 .DESCRIPTION
     Contains the core analysis rules used by both AGanalyse and AGremediate.
     Provides the Invoke-AEGISAnalysis function which returns structured findings.
+
+    Kenya-specific rules are handled by AGkenya.ps1 (dot-sourced below).
+    Those rules are entirely optional and additive — users outside Kenya
+    will not see any additional output unless their baseline triggers a match.
 #>
+
+# Dot-source the Kenya module (optional, additive rules only)
+$_kenyaModule = Join-Path $PSScriptRoot 'AGkenya.ps1'
+if (Test-Path $_kenyaModule) { . $_kenyaModule }
 
 $script:findings = @()
 $script:totalScore = 0
@@ -29,6 +37,9 @@ function Invoke-AEGISAnalysis {
         }
         $script:totalScore += $weight
     }
+
+    # Proxy scriptblock so AGkenya can call Add-Finding without scope issues
+    $addFindingProxy = { param($s,$w,$m,$r) Add-Finding $s $w $m $r }
 
     # -- Power Rules --------------------------------------------------------------
     if ($null -ne $baseline.Power.CpuMinStateAC -and $baseline.Power.CpuMinStateAC -ge 0) {
@@ -110,8 +121,8 @@ function Invoke-AEGISAnalysis {
     }
 
     # -- Wake Lock Rules ----------------------------------------------------------
-    if ($null -ne $baseline.WakeLocks -and $baseline.WakeLocks.Count -gt 0) {
-        $lockCount  = $baseline.WakeLocks.Count
+    if ($null -ne $baseline.WakeLocks -and @($baseline.WakeLocks).Count -gt 0) {
+        $lockCount  = @($baseline.WakeLocks).Count
         $lockWeight = [math]::Min(40 + ($lockCount * 5), 60)
         $lockNames  = ($baseline.WakeLocks | ForEach-Object { "  - $($_.Blocker)" }) -join "`n"
         $remedy = @(
@@ -132,7 +143,7 @@ function Invoke-AEGISAnalysis {
     }
 
     # -- Storage Rules ------------------------------------------------------------
-    if ($null -ne $baseline.Storage -and $baseline.Storage.Count -gt 0) {
+    if ($null -ne $baseline.Storage -and @($baseline.Storage).Count -gt 0) {
         foreach ($disk in $baseline.Storage) {
             if ($disk.Health -and $disk.Health -ne "Healthy" -and $disk.Health -ne "Unknown") {
                 $remedy = @(
@@ -165,7 +176,7 @@ function Invoke-AEGISAnalysis {
     }
 
     # -- Process Rules ------------------------------------------------------------
-    if ($null -ne $baseline.TopProcesses -and $baseline.TopProcesses.Count -gt 0) {
+    if ($null -ne $baseline.TopProcesses -and @($baseline.TopProcesses).Count -gt 0) {
         foreach ($proc in $baseline.TopProcesses) {
             if ($proc.WorkingSetMB -gt 2048) {
                 $pname = $proc.Name
@@ -182,6 +193,11 @@ function Invoke-AEGISAnalysis {
         $top5     = $baseline.TopProcesses | Select-Object -First 5
         $procList = ($top5 | ForEach-Object { "$($_.Name) ($($_.WorkingSetMB) MB)" }) -join ", "
         Add-Finding "INFO" 0 "Top processes by cumulative CPU time: $procList"
+    }
+
+    # -- Kenya-Specific Rules (optional, additive) ----------------------------
+    if (Get-Command Invoke-AEGISKenyaAnalysis -ErrorAction SilentlyContinue) {
+        Invoke-AEGISKenyaAnalysis -baseline $baseline -AddFinding $addFindingProxy
     }
 
     return [PSCustomObject]@{

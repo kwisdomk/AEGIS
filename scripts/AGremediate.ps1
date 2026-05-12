@@ -33,8 +33,6 @@ param(
     [string]$JsonPath
 )
 
-Write-Host "Hello, I am AEGIS. Whachu wanna do..." -ForegroundColor Cyan
-
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 

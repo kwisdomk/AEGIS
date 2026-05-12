@@ -83,11 +83,13 @@ AEGIS/
 ├── scripts/
 │   ├── AGcollect.ps1          # System telemetry collector
 │   ├── AGanalyse.ps1          # Weighted rule-based diagnostics + action plan
+│   ├── AGrules.ps1            # Shared rule engine (dot-sources AGkenya)
+│   ├── AGkenya.ps1            # Kenya-specific rules (Nairobi market context)
 │   ├── AGremediate.ps1        # Standalone remediation advisor
 │   └── AGcompare.ps1          # Before/after comparison
 ├── docs/
 │   ├── 00_project_overview.md
-│   ├── USAGE.md               # Detailed user instructions
+│   ├── USAGE.md               # Detailed user instructions + Nairobi buying guide
 │   └── ...                    # Other docs
 ├── results/                   # Baseline outputs (gitignored)
 └── README.md
@@ -101,6 +103,17 @@ AEGIS/
 - Any hardware class (low-end to workstation)
 - Works offline
 
+### 🇰🇪 Kenya / Nairobi Gaming Laptop Focus
+
+AEGIS has built-in intelligence for the **Kenyan market**. When it detects hardware issues common to laptops bought in Nairobi, it automatically surfaces Nairobi-specific advice:
+
+- **Single-channel RAM** warnings include local upgrade costs (KES 2,500–4,500) and trusted CBD shops where you can buy compatible sticks.
+- **Ex-UK / refurbished** bloat detection flags MDM agents (Computrace, SCCM, MaaS360) that are frequently left active on corporate refurbs.
+- **Pirated Windows** heuristics warn of KMS activator signals common on budget Luthuli Ave / River Road stall machines.
+- **Buying advice** references verified trusted sellers (Saruk Digital, ECB Technologies, Bright Technologies, Acetech IT, and others) and flags confirmed high-risk entities.
+
+See the [Buying Laptops in Nairobi](docs/USAGE.md#buying-laptops-in-nairobi) section in the Usage Guide for the full breakdown.
+
 ---
 
 ## License
@@ -109,4 +122,4 @@ MIT — see [LICENSE](LICENSE)
 
 ---
 
-AEGIS v1.1
+AEGIS v1.2.0

@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.2.0 — 2026-05-12
+
+Bug fixes and polish.
+
+- Fixed `The property 'Count' cannot be found on this object` crash when baseline fields (`WakeLocks`, `Storage`, `TopProcesses`) are `$null` under `Set-StrictMode`. All `.Count` accesses in `AGrules.ps1` and `AGkenya.ps1` now use `@(...)` array cast for null safety.
+- Added `if ($null -eq $baseline) { return }` null guard at the top of `Invoke-AEGISKenyaAnalysis` in `AGkenya.ps1`.
+- Fixed `AEGIS.ps1` menu printing multiple times: all child script invocations are now wrapped in `try/catch` so a downstream terminating error no longer propagates unhandled into the `do/while` loop.
+- Removed duplicate greeting (`Hello, I am AEGIS. Whachu wanna do...`) from `AGanalyse.ps1` and `AGremediate.ps1`. The greeting now appears exactly once — at launcher startup in `AEGIS.ps1`.
+
+---
+
 ## v1.1.0 — 2026-05-12
 
 Phase 2: Close the Gap (Remediation)

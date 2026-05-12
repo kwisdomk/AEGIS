@@ -15,13 +15,13 @@ do {
     Write-Host ""
 
     switch ($choice) {
-        '1' { & "$PSScriptRoot\scripts\AGcollect.ps1" }
-        '2' { & "$PSScriptRoot\scripts\AGanalyse.ps1" }
-        '3' { & "$PSScriptRoot\scripts\AGremediate.ps1" }
-        '4' { & "$PSScriptRoot\scripts\AGcompare.ps1" }
-        '5' { 
-            & "$PSScriptRoot\scripts\AGanalyse.ps1"
-            & "$PSScriptRoot\scripts\AGremediate.ps1"
+        '1' { try { & "$PSScriptRoot\scripts\AGcollect.ps1"   } catch { Write-Host "[ERROR] $_" -ForegroundColor Red } }
+        '2' { try { & "$PSScriptRoot\scripts\AGanalyse.ps1"   } catch { Write-Host "[ERROR] $_" -ForegroundColor Red } }
+        '3' { try { & "$PSScriptRoot\scripts\AGremediate.ps1" } catch { Write-Host "[ERROR] $_" -ForegroundColor Red } }
+        '4' { try { & "$PSScriptRoot\scripts\AGcompare.ps1"   } catch { Write-Host "[ERROR] $_" -ForegroundColor Red } }
+        '5' {
+            try { & "$PSScriptRoot\scripts\AGanalyse.ps1"   } catch { Write-Host "[ERROR] $_" -ForegroundColor Red }
+            try { & "$PSScriptRoot\scripts\AGremediate.ps1" } catch { Write-Host "[ERROR] $_" -ForegroundColor Red }
         }
         '6' {
             Write-Host "Alright. Catch you later." -ForegroundColor Gray
