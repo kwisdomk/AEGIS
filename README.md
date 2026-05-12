@@ -1,25 +1,37 @@
 # AEGIS
 
-**Automated Environment Gathering & Inspection System**
+**Automated Environment Gathering & Inspection System — The Gaming Laptop Shield**
 
-A portable Windows diagnostic framework that converts any machine into a measurable, analyzable environment. No installation required.
+Welcome to AEGIS! AEGIS is a portable Windows diagnostic framework that converts any machine into a measurable, analyzable environment — and guides you through fixing what it finds. No installation required.
+
+---
+
+## Why AEGIS? (For Gaming Laptops)
+
+Modern gaming laptops often suffer from "silent killers"—hidden issues that severely throttle performance without ever triggering an error message or blue screen. AEGIS is specifically designed to hunt down these problems:
+
+- **Single-Channel Memory Bottlenecks:** Up to a 30% loss in FPS because of OEM cost-cutting.
+- **Sleep-Killing Wake Locks:** Applications keeping the system awake, draining battery and generating heat in your backpack.
+- **Aggressive Power States:** The CPU artificially limiting its own wattage.
+- **OEM Bloatware:** Heavy background services consuming valuable CPU cycles.
+
+AEGIS gives you the tools to spot these problems instantly, fix them, and prove that the fix actually worked.
 
 ---
 
 ## Quick Start
 
 ```powershell
+# -- Interactive Launcher (Recommended) --
+.\AEGIS.ps1
+
+# -- Manual Steps --
 # 1. Collect a baseline
 .\scripts\AGcollect.ps1
 
 # 2. Analyze (auto-selects latest baseline)
+#    Diagnosis + ranked action plan printed at the end
 .\scripts\AGanalyse.ps1
-
-# 3. Or analyze a specific baseline
-.\scripts\AGanalyse.ps1 -JsonPath .\results\Baseline_YOURPC_20260418_120000.json
-
-# 4. Make changes, collect again, then compare
-.\scripts\AGcompare.ps1 -Before .\results\before.json -After .\results\after.json
 ```
 
 > **Note:** Run PowerShell as Administrator for full telemetry access. If scripts are blocked, run:
@@ -27,33 +39,39 @@ A portable Windows diagnostic framework that converts any machine into a measura
 
 ---
 
-## What It Does
+## How to Close the Loop (The Workflow)
 
-| Step | Command | Output |
-|------|---------|--------|
-| **Collect** | `AGcollect` | JSON snapshot of CPU, GPU, RAM, storage, power, wake locks, processes |
-| **Analyse** | `AGanalyse` | Weighted diagnostic findings with impact score and health grade |
-| **Compare** | `AGcompare` | Before/after delta report with improvement validation |
+AEGIS is built around a continuous improvement cycle:
 
-### Severity Weighting
+1. **Take a Snapshot:** Run `AGcollect.ps1` to grab a system baseline.
+2. **Review the Action Plan:** Run `AGanalyse.ps1` (or use the launcher). AEGIS will grade your system and give you a ranked list of fixes.
+3. **Apply Fixes:** Follow the step-by-step remedies provided in the Action Plan.
+4. **Re-Collect:** Run `AGcollect.ps1` again to capture the new system state.
+5. **Verify:** Run `AGcompare.ps1` to compare the old and new baselines. AEGIS will confirm the issues are resolved and show your improved score.
 
-AGanalyse uses a point-based scoring system to prioritize findings:
+---
+
+## Interpreting Results
+
+AEGIS uses a point-based scoring system to prioritize findings based on their impact:
 
 | Score | Grade | Meaning |
-|-------|-------|---------|
+|-------|-------|---------| 
 | 0–29 | **HEALTHY** | System within acceptable parameters |
 | 30–69 | **NEEDS ATTENTION** | Review flagged issues |
 | 70+ | **CRITICAL STATE** | Immediate intervention required |
 
+Your goal is to drop your score down into the "HEALTHY" range by addressing the high-impact items in your Action Plan.
+
 ---
 
-## Pipeline
+## Common Gaming Laptop Issues AEGIS Detects
 
-```
-AGcollect ──→ JSON BASELINE ──→ AGanalyse ──→ WEIGHTED DIAGNOSIS
-                   │
-                   └──────────→ AGcompare ──→ DELTA REPORT
-```
+- **Single-channel RAM:** Reduces memory bandwidth by 50%.
+- **Active Wake Locks:** Apps preventing deep sleep, causing overheating.
+- **CPU Power States:** Min/Max states capped incorrectly, crippling performance.
+- **Storage Bottlenecks:** Over-filled or failing SSDs affecting load times.
+- **Memory Constraints:** Low RAM causing excessive paging.
 
 ---
 
@@ -61,36 +79,19 @@ AGcollect ──→ JSON BASELINE ──→ AGanalyse ──→ WEIGHTED DIAGNOS
 
 ```
 AEGIS/
+├── AEGIS.ps1                  # Interactive launcher
 ├── scripts/
 │   ├── AGcollect.ps1          # System telemetry collector
-│   ├── AGanalyse.ps1          # Weighted rule-based diagnostics
+│   ├── AGanalyse.ps1          # Weighted rule-based diagnostics + action plan
+│   ├── AGremediate.ps1        # Standalone remediation advisor
 │   └── AGcompare.ps1          # Before/after comparison
 ├── docs/
 │   ├── 00_project_overview.md
-│   ├── 01_architecture.md
-│   ├── 02_decision_tree.md
-│   ├── 03_workflow_lifecycle.md
-│   ├── 04_design_principles.md
-│   ├── 05_history_origin.md
-│   ├── 06_troubleshooting.md
-│   ├── 07_future_roadmap.md
-│   ├── 08_schema.md
-│   └── 09_glossary.md
+│   ├── USAGE.md               # Detailed user instructions
+│   └── ...                    # Other docs
 ├── results/                   # Baseline outputs (gitignored)
-├── .gitignore
-├── LICENSE
 └── README.md
 ```
-
----
-
-## Design Principles
-
-- **Deterministic** — Same state produces the same output
-- **Portable** — No installation, runs on any Windows machine
-- **Non-Invasive** — Never modifies system state
-- **Transparent** — All diagnostics from observable data
-- **Reproducible** — Repeatable across machines and time
 
 ---
 
@@ -108,4 +109,4 @@ MIT — see [LICENSE](LICENSE)
 
 ---
 
-AEGIS v1.0
+AEGIS v1.1

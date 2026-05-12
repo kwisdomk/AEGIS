@@ -9,7 +9,17 @@
 
 ---
 
-## Phase 2 — Expansion
+## Phase 2 — Closed Loop (Completed)
+
+- [x] Per-finding remediation guidance (embedded in AGanalyse)
+- [x] Ranked ACTION PLAN output (highest impact first)
+- [x] Projected score reduction per fix
+- [x] Standalone AGremediate.ps1 advisor
+- [x] Close-the-loop re-test command sequence
+
+---
+
+## Phase 3 — Expansion
 
 Planned:
 
@@ -20,7 +30,7 @@ Planned:
 
 ---
 
-## Phase 3 — Intelligence Layer
+## Phase 4 — Intelligence Layer
 
 Optional future enhancements:
 
@@ -28,15 +38,14 @@ Optional future enhancements:
 - [ ] Automatic anomaly detection
 - [ ] Performance regression alerts
 
-
-
 ---
 
-## Phase 4 — Interface Layer (Optional)
+## Phase 5 — Interface Layer (Optional)
 
 - [ ] CLI command wrapper:
   - `aegis collect`
   - `aegis analyze`
+  - `aegis remediate`
   - `aegis compare`
 - [ ] Optional dashboard visualization (future scope)
 
@@ -46,8 +55,9 @@ Optional future enhancements:
 
 AEGIS evolves into:
 
-> A structured system intelligence layer for Windows environments.
+> A structured system intelligence layer for Windows environments —
+> detecting problems, guiding fixes, and verifying improvement automatically.
 
 ---
 
-AEGIS v1.0 — Last updated: 2026-04-18
+AEGIS v1.1 — Last updated: 2026-05-12

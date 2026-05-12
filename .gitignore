@@ -2,13 +2,18 @@
 
 # Baseline results (machine-specific, not tracked)
 results/*.json
+# Results (optional - you can keep some)
+# results/Baseline_*.json
 
 # Temp files
 *.tmp
+*.log
 *.bak
 New Text Document*.txt
+_diag*.ps1
 
 # PowerShell module artifacts
+*.ps1xml
 *.psm1.bak
 
 # OS junk
